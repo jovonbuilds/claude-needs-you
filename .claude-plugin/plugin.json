@@ -1,0 +1,12 @@
+{
+  "name": "claude-needs-you",
+  "version": "1.0.0",
+  "description": "Native OS notifications when Claude Code needs your attention — permission prompts, questions, idle, and task completion.",
+  "author": {
+    "name": "Jovon",
+    "url": "https://github.com/jovonbuilds"
+  },
+  "repository": "https://github.com/jovonbuilds/claude-needs-you",
+  "license": "MIT",
+  "keywords": ["notifications", "macos", "linux", "windows", "productivity", "hooks", "claude-code"]
+}

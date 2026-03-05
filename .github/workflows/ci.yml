@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # v2.0.0
+        with:
+          scandir: scripts
+          severity: warning
+
+  validate-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Validate JSON files
+        run: |
+          FAIL=0
+          for f in .claude-plugin/plugin.json hooks/hooks.json; do
+            if ! jq empty "$f" 2>/dev/null; then
+              echo "::error file=$f::Invalid JSON"
+              FAIL=1
+            else
+              echo "$f — valid"
+            fi
+          done
+          exit $FAIL
+
+  test-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 1
+
+      - name: Script is executable
+        run: test -x scripts/notify.sh
+
+      - name: Mode=off exits cleanly
+        run: |
+          echo '{"hook_event_name":"Stop"}' | CLAUDE_NOTIFY=off bash scripts/notify.sh
+
+      - name: Filters by mode=notification (skips Stop)
+        run: |
+          echo '{"hook_event_name":"Stop"}' | CLAUDE_NOTIFY=notification bash scripts/notify.sh
+
+      - name: Filters by mode=stop (skips Notification)
+        run: |
+          echo '{"hook_event_name":"Notification","notification_type":"idle_prompt"}' | CLAUDE_NOTIFY=stop bash scripts/notify.sh
+
+      - name: Handles missing fields gracefully
+        run: |
+          echo '{}' | CLAUDE_NOTIFY=all bash scripts/notify.sh
+
+      - name: Deduplicates permission_prompt notifications
+        run: |
+          echo '{"hook_event_name":"Notification","notification_type":"permission_prompt"}' | CLAUDE_NOTIFY=all bash scripts/notify.sh
