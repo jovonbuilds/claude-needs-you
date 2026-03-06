@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Add `delay` setting (default 5s) — waits then re-checks focus before notifying, so you have time to switch over
+- Fix `/claude-needs-you` skill to use `disable-model-invocation: true` — settings menu no longer burns tokens
+- Fix settings script path for marketplace installs
+
 ## 1.0.0
 
 Initial release.

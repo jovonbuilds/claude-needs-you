@@ -26,6 +26,9 @@ NOTIFY_MODE="${NOTIFY_MODE:-all}"
 NOTIFY_SOUND="${CLAUDE_NOTIFY_SOUND:-$(cfg sound)}"
 NOTIFY_SOUND="${NOTIFY_SOUND:-default}"
 
+NOTIFY_DELAY="${CLAUDE_NOTIFY_DELAY:-$(cfg delay)}"
+NOTIFY_DELAY="${NOTIFY_DELAY:-5}"
+
 DEBUG_CFG=$(cfg debug)
 DEBUG="${CLAUDE_NOTIFY_DEBUG:-${DEBUG_CFG:-0}}"
 [[ "$DEBUG" == "true" ]] && DEBUG="1"
@@ -197,6 +200,16 @@ terminal_is_focused() {
 if terminal_is_focused; then
   log "Focused — skipping"
   exit 0
+fi
+
+# Grace period: wait, then re-check focus before notifying
+if [[ "$NOTIFY_DELAY" -gt 0 ]] 2>/dev/null; then
+  log "Waiting ${NOTIFY_DELAY}s before notifying..."
+  sleep "$NOTIFY_DELAY"
+  if terminal_is_focused; then
+    log "Focused after delay — skipping"
+    exit 0
+  fi
 fi
 
 # ---------------------------------------------------------------------------

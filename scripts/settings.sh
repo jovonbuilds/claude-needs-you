@@ -11,6 +11,7 @@ cfg() { jq -r ".$1 // empty" "$CONFIG_FILE" 2>/dev/null || true; }
 # Current values (or defaults)
 MODE=$(cfg mode); MODE="${MODE:-all}"
 SOUND=$(cfg sound); SOUND="${SOUND:-default}"
+DELAY=$(cfg delay); DELAY="${DELAY:-5}"
 DEBUG=$(cfg debug); DEBUG="${DEBUG:-false}"
 
 save() {
@@ -18,6 +19,7 @@ save() {
   local json="{}"
   [[ "$MODE" != "all" ]] && json=$(printf '%s' "$json" | jq --arg v "$MODE" '.mode = $v')
   [[ "$SOUND" != "default" ]] && json=$(printf '%s' "$json" | jq --arg v "$SOUND" '.sound = $v')
+  [[ "$DELAY" != "5" ]] && json=$(printf '%s' "$json" | jq --argjson v "$DELAY" '.delay = $v')
   [[ "$DEBUG" != "false" ]] && json=$(printf '%s' "$json" | jq --argjson v "$DEBUG" '.debug = $v')
   if [[ "$json" == "{}" ]]; then
     rm -f "$CONFIG_FILE"
@@ -34,7 +36,8 @@ show_settings() {
   echo "  ─────────────────────────────"
   echo "  1) mode    $MODE"
   echo "  2) sound   $SOUND"
-  echo "  3) debug   $DEBUG"
+  echo "  3) delay   ${DELAY}s"
+  echo "  4) debug   $DEBUG"
   echo ""
   echo "  s) Save and exit"
   echo "  q) Quit without saving"
@@ -80,6 +83,18 @@ pick_sound() {
   esac
 }
 
+pick_delay() {
+  echo ""
+  echo "  Seconds to wait before notifying (0 = instant):"
+  printf "  Delay [0-30]: "
+  read -r choice
+  if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -le 30 ]]; then
+    DELAY="$choice"
+  else
+    echo "  Invalid — enter a number 0-30"
+  fi
+}
+
 pick_debug() {
   echo ""
   if [[ "$DEBUG" == "true" ]]; then
@@ -99,7 +114,8 @@ while true; do
   case "$choice" in
     1) pick_mode ;;
     2) pick_sound ;;
-    3) pick_debug ;;
+    3) pick_delay ;;
+    4) pick_debug ;;
     s|S)
       save
       echo "  Saved to $CONFIG_FILE"
@@ -109,6 +125,6 @@ while true; do
       echo "  No changes saved."
       exit 0
       ;;
-    *) echo "  Pick 1-3, s, or q" ;;
+    *) echo "  Pick 1-4, s, or q" ;;
   esac
 done
