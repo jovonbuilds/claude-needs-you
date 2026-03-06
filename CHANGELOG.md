@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0
+
+- New interactive settings menu with arrow-key navigation and colors — replaces number-based bash menu
+- Settings launcher auto-installed at `~/.config/claude-needs-you/settings` on first notification
+- All hooks now async — no more blocking Claude Code during delay
+- Node.js syntax check added to `check.sh`
+
 ## 1.1.0
 
 - Add `delay` setting (default 5s) — waits then re-checks focus before notifying, so you have time to switch over

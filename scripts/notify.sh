@@ -70,6 +70,22 @@ term_to_bundle_id() {
 }
 
 # ---------------------------------------------------------------------------
+# Bootstrap: drop a short launcher at a fixed path so users can just run it
+# ---------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LAUNCHER="${CONFIG_FILE%/*}/settings"
+if [[ ! -x "$LAUNCHER" ]] || ! grep -q "$SCRIPT_DIR" "$LAUNCHER" 2>/dev/null; then
+  mkdir -p "${CONFIG_FILE%/*}"
+  tmp_launcher=$(mktemp "${CONFIG_FILE%/*}/settings.XXXXXX")
+  cat > "$tmp_launcher" <<LAUNCHER_EOF
+#!/usr/bin/env bash
+exec node "$SCRIPT_DIR/settings.mjs" "\$@"
+LAUNCHER_EOF
+  chmod +x "$tmp_launcher"
+  mv "$tmp_launcher" "$LAUNCHER"
+fi
+
+# ---------------------------------------------------------------------------
 # Read hook input
 # ---------------------------------------------------------------------------
 INPUT=$(cat)

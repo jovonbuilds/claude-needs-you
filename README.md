@@ -65,7 +65,13 @@ Without it, notifications still work via `osascript` but clicking them does noth
 
 ## Configuration
 
-Run `/claude-needs-you` inside Claude Code to open the interactive settings menu. This runs a shell script directly — no tokens used.
+Run `/claude-needs-you` inside Claude Code for instructions, or launch the interactive settings menu directly:
+
+```bash
+~/.config/claude-needs-you/settings
+```
+
+The launcher is auto-created the first time a notification fires. No tokens used.
 
 Settings are saved to `~/.config/claude-needs-you/config.json`.
 
@@ -75,6 +81,7 @@ Settings are saved to `~/.config/claude-needs-you/config.json`.
 |---------|--------|---------|
 | `mode` | `all`, `notification`, `stop`, `off` | `all` |
 | `sound` | macOS sound name or `none` | `default` |
+| `delay` | `0`–`30` (seconds) | `5` |
 | `debug` | `true` / `false` | `false` |
 
 **mode:**
@@ -84,6 +91,8 @@ Settings are saved to `~/.config/claude-needs-you/config.json`.
 - **`off`** — disable all notifications
 
 **sound** — any macOS system sound: `default`, `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`, or `none` for silent.
+
+**delay** — seconds to wait before sending a notification. If you switch to the Claude terminal during this grace period, the notification is suppressed. Set to `0` for instant alerts.
 
 **debug** — when `true`, writes a log to `/tmp/claude-needs-you.log`.
 
@@ -95,6 +104,7 @@ Power users can override config file settings with environment variables. These 
 |----------|-----------|
 | `CLAUDE_NOTIFY` | `mode` |
 | `CLAUDE_NOTIFY_SOUND` | `sound` |
+| `CLAUDE_NOTIFY_DELAY` | `delay` |
 | `CLAUDE_NOTIFY_DEBUG` | `debug` (use `1`) |
 
 ## Platform support
@@ -159,6 +169,8 @@ claude-needs-you/
 ├── assets/                              # screenshots
 ├── hooks/hooks.json                     # hook event registrations
 ├── scripts/notify.sh                    # notification logic
+├── scripts/settings.mjs                 # interactive settings menu (Node.js)
+├── scripts/settings.sh                  # legacy settings menu (bash fallback)
 ├── scripts/check.sh                     # local pre-push checks
 ├── skills/claude-needs-you/SKILL.md     # /claude-needs-you command
 ├── LICENSE

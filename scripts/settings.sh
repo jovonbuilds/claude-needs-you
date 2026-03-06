@@ -89,7 +89,7 @@ pick_delay() {
   printf "  Delay [0-30]: "
   read -r choice
   if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -le 30 ]]; then
-    DELAY="$choice"
+    DELAY=$((10#$choice))
   else
     echo "  Invalid — enter a number 0-30"
   fi

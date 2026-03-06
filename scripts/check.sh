@@ -13,6 +13,19 @@ else
 fi
 
 echo ""
+echo "=== Node.js syntax ==="
+if command -v node &>/dev/null; then
+  if node --check "$ROOT/scripts/settings.mjs"; then
+    echo "settings.mjs — PASS"
+  else
+    echo "settings.mjs — FAIL"
+    FAIL=1
+  fi
+else
+  echo "SKIP (node not found)"
+fi
+
+echo ""
 echo "=== JSON validation ==="
 for f in .claude-plugin/plugin.json hooks/hooks.json; do
   if jq empty "$ROOT/$f" 2>/dev/null; then
